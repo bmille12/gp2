@@ -39,6 +39,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 //we are on some other platform
 int main(int argc, char **argv)
 #endif
+/*
 {
 	CWin32Window * pWin=new CWin32Window();
 	pWin->init(TEXT("Bryan"),860,640,false);
@@ -50,5 +51,5 @@ int main(int argc, char **argv)
 	delete pWin;
 
 	return 0;
-}
+}*/
 

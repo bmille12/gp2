@@ -19,6 +19,9 @@
     <Filter Include="Game">
       <UniqueIdentifier>{39b08fc6-abc1-4955-afef-644c1faa1c8a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Effects">
+      <UniqueIdentifier>{304e8670-3a6a-4f0b-9f95-1cdbeeadf35b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -38,5 +41,10 @@
     <ClInclude Include="GameApplication.h">
       <Filter>Game</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ScreenSpace.fx">
+      <Filter>Effects</Filter>
+    </None>
   </ItemGroup>
 </Project>
