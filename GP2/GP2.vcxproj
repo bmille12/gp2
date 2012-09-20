@@ -77,7 +77,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GameApplication.cpp" />
+    <ClCompile Include="CGameApplication.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Win32Window.cpp" />
   </ItemGroup>

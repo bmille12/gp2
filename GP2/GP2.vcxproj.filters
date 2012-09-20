@@ -30,7 +30,7 @@
     <ClCompile Include="Win32Window.cpp">
       <Filter>Window</Filter>
     </ClCompile>
-    <ClCompile Include="GameApplication.cpp">
+    <ClCompile Include="CGameApplication.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
