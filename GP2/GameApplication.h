@@ -9,12 +9,15 @@ class CGameApplication
 public:
 	CGameApplication(void);
 	~CGameApplication(void);
+	ID3D10Effect* m_pEffect;
+	ID3D10EffectTechnique* m_pTechnique;
 
 	bool init();
 	bool run();
 private:
 	bool initGraphics();
 	bool initWindow();
+	bool initGame();
 
 	void render();
 	void update();
@@ -23,5 +26,8 @@ private:
 	IDXGISwapChain * m_pSwapChain;
 	ID3D10RenderTargetView * m_pRenderTargetView;
 	CWin32Window * m_pWindow;
+
+	ID3D10Buffer* m_pVertexBuffer;
+
 };
 

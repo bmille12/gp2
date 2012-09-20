@@ -1,16 +1,19 @@
-﻿Build started 20/09/2012 08:46:26.
+﻿Build started 20/09/2012 10:57:51.
      1>Project "C:\Users\Bryan\Documents\GitHub\gp2\GP2\GP2.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Creating "Debug\GP2.unsuccessfulbuild" because "AlwaysCreate" was specified.
+         Touching "Debug\GP2.unsuccessfulbuild".
        ClCompile:
-         e:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\Microsoft DirectX SDK (June 2010)\\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt CGameApplication.cpp
-         CGameApplication.cpp
-     1>c:\users\bryan\documents\github\gp2\gp2\cgameapplication.cpp(141): warning C4715: 'CGameApplication::initWindow' : not all control paths return a value
+         e:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\Microsoft DirectX SDK (June 2010)\\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt GameApplication.cpp main.cpp
+         GameApplication.cpp
+         Generating Code...
+         Compiling...
+         main.cpp
+         Generating Code...
        ManifestResourceCompile:
          All outputs are up-to-date.
        Link:
          e:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Bryan\Documents\GitHub\gp2\Debug\GP2.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\Microsoft DirectX SDK (June 2010)\\lib\x86" d3d10.lib d3dx10.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\GP2.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Bryan\Documents\GitHub\gp2\Debug\GP2.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Bryan\Documents\GitHub\gp2\Debug\GP2.lib" /MACHINE:X86 Debug\GP2.exe.embed.manifest.res
-         Debug\CGameApplication.obj
+         Debug\GameApplication.obj
          Debug\main.obj
          Debug\Win32Window.obj
        Manifest:
@@ -26,4 +29,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:04.80
+Time Elapsed 00:00:06.75
