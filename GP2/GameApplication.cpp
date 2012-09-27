@@ -13,6 +13,8 @@ CGameApplication::CGameApplication(void)
 	m_pRenderTargetView = NULL;
 	m_pSwapChain = NULL;
 	m_pVertexBuffer = NULL;
+	m_pDepthStencilView = NULL;
+	m_pDepthStencilTexture = NULL;
 }
 
 CGameApplication::~CGameApplication(void)
@@ -25,6 +27,14 @@ CGameApplication::~CGameApplication(void)
 	{
 		m_pRenderTargetView->Release();
 	}
+	if (m_pDepthStencilTexture)
+	{
+		m_pDepthStencilTexture->Release();
+	}
+	if (m_pDepthStencilView)
+	{
+		m_pDepthStencilView->Release();
+	}
 	if (m_pSwapChain)
 	{
 		m_pSwapChain->Release();
@@ -35,6 +45,9 @@ CGameApplication::~CGameApplication(void)
 	}
 	if (m_pVertexBuffer)
 		m_pVertexBuffer->Release();
+
+	if (m_pVertexLayout)
+		m_pVertexLayout->Release();
 
 	if(m_pEffect)
 		m_pEffect->Release();
@@ -75,11 +88,32 @@ void CGameApplication::render()
 {
 	float ClearColor[4]={0.0f,0.125f,0.3f,1.0f};
 	m_pD3D10Device->ClearRenderTargetView( m_pRenderTargetView, ClearColor);
+	m_pD3D10Device->ClearDepthStencilView(m_pDepthStencilView,
+		D3D10_CLEAR_DEPTH,1.0f,0);
+	m_pViewMatrixVariable->SetMatrix((float*)m_matProjection);
+	m_pWorldMatrixVariable->SetMatrix((float*)m_matWorld);
+	D3D10_TECHNIQUE_DESC techDesc;
+	m_pTechnique->GetDesc(&techDesc);
+	for(UINT p=0;p<techDesc.Passes;++p)
+	{
+		m_pTechnique->GetPassByIndex(p)->Apply(0);
+		m_pD3D10Device->DrawIndexed(36,0,0);
+	}
+
 	m_pSwapChain->Present(0,0);
 }
 
 void CGameApplication::update()
 {
+
+	D3DXMatrixScaling(&m_matScale,m_vecScale.x,m_vecScale.y,m_vecScale.z);
+
+	D3DXMatrixRotationYawPitchRoll(&m_matRotation,m_vecRotation.y,m_vecRotation.x,m_vecRotation.z);
+
+	D3DXMatrixTranslation(&m_matTranslation,m_vecPosition.x,m_vecPosition.y, m_vecPosition.z);
+
+	D3DXMatrixMultiply(&m_matWorld,&m_matScale,&m_matRotation);
+	D3DXMatrixMultiply(&m_matWorld,&m_matWorld,&m_matTranslation);
 }
 
 bool CGameApplication::initGraphics()
@@ -129,8 +163,22 @@ bool CGameApplication::initGraphics()
 		return false;
 	}
 	pBackBuffer->Release();
+	D3D10_TEXTURE2D_DESC descDepth;
+	descDepth.Width = width;
+	descDepth.Height = height;
+	descDepth.MipLevels = 1;
+	descDepth.ArraySize = 1;
+	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
+	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Quality = 1;
+	descDepth.Usage = D3D10_USAGE_DEFAULT;
+	descDepth.BindFlags = D3D10_BIND_DEPTH_STENCIL;
+	descDepth.CPUAccessFlags = 0;
+	descDepth.MiscFlags = 0;
+	if (FAILED(m_pD3D10Device->CreateTexture2D(&descDepth,NULL,&m_pDepthStencilTexture)))
+		return false;
 
-	m_pD3D10Device->OMSetRenderTargets(1,&m_pRenderTargetView,NULL);
+	m_pD3D10Device->OMSetRenderTargets(1,&m_pRenderTargetView,m_pDepthStencilView);
 
 	D3D10_VIEWPORT vp;
 	vp.Width = width;
@@ -141,7 +189,14 @@ bool CGameApplication::initGraphics()
 	vp.TopLeftY=0;
 	m_pD3D10Device->RSSetViewports(1,&vp);
 
+	D3D10_DEPTH_STENCIL_VIEW_DESC descDSV;
+	descDSV.Format = descDepth.Format;
+	descDSV.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Texture2D.MipSlice = 0;
 
+	if(FAILED(m_pD3D10Device->CreateDepthStencilView(
+		m_pDepthStencilTexture, &descDSV, &m_pDepthStencilView)))
+		return false;
 
 	return true;
 }
@@ -169,15 +224,20 @@ bool CGameApplication::initGame()
 
 	D3D10_BUFFER_DESC bd;
 	bd.Usage = D3D10_USAGE_DEFAULT;
-	bd. ByteWidth = sizeof(Vertex)*3;
+	bd.ByteWidth = sizeof(Vertex)*4;
 	bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;
 	Vertex vertices[]=
 	{
-		D3DXVECTOR3(0.0f,0.5f,0.5f),
+		D3DXVECTOR3(0.5f,0.5f,0.5f),
 		D3DXVECTOR3(0.5f,-0.5f,0.5f),
 		D3DXVECTOR3(-0.5f, -0.5f, 0.5f),
+		D3DXVECTOR3(-0.5f,0.5f,1.5f),
+		D3DXVECTOR3(0.5f,0.5f,-0.5f),
+		D3DXVECTOR3(0.5f,-0.5f,-0.5f),
+		D3DXVECTOR3(-0.5f, -0.5f, -0.5f),
+		D3DXVECTOR3(-0.5f,0.5f,-0.5f),
 	};
 
 	D3D10_SUBRESOURCE_DATA InitData;
@@ -185,6 +245,81 @@ bool CGameApplication::initGame()
 
 	if (FAILED(m_pD3D10Device->CreateBuffer(&bd, &InitData, &m_pVertexBuffer)))
 		return false;
+	int indices[]={0,1,2,
+		0,1,2,
+		1,2,3,
+		0,7,5,
+		0,7,2,
+		0,4,5,
+		0,5,1,
+		2,3,7,
+		3,7,6,
+		1,4,3,
+		3,4,6,
+		4,5,6,
+		5,6,7};
+	D3D10_BUFFER_DESC iBD;
+	iBD.Usage = D3D10_USAGE_DEFAULT;
+	iBD.ByteWidth = sizeof(indices)*36;
+	iBD.BindFlags = D3D10_BIND_INDEX_BUFFER;
+	iBD.CPUAccessFlags=0;
+	iBD.MiscFlags=0;
+	
+	D3D10_SUBRESOURCE_DATA IndexBufferInitialData;
+	IndexBufferInitialData.pSysMem = indices;
+
+
+	if (FAILED(m_pD3D10Device->CreateBuffer(&iBD,&IndexBufferInitialData,&m_pIndexBuffer)))
+		return false;
+
+
+	UINT stride = sizeof(Vertex);
+	UINT offset=0;
+	m_pD3D10Device->IASetVertexBuffers(0,1,
+		&m_pVertexBuffer,&stride,&offset);
+	m_pD3D10Device->IASetIndexBuffer(
+		m_pIndexBuffer,DXGI_FORMAT_R32_UINT,0);
+
+
+	D3D10_INPUT_ELEMENT_DESC layout[]=
+	{
+		{"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,
+		D3D10_INPUT_PER_VERTEX_DATA,0},
+	};
+	UINT numElements=sizeof( layout )/sizeof(D3D10_INPUT_ELEMENT_DESC);
+	D3D10_PASS_DESC PassDesc;
+	m_pTechnique->GetPassByIndex(0)->GetDesc(&PassDesc);
+	if (FAILED(m_pD3D10Device->CreateInputLayout(layout,
+		numElements,
+		PassDesc.pIAInputSignature,
+		PassDesc.IAInputSignatureSize,
+		&m_pVertexLayout)))
+	{
+		return false;
+	}
+		m_pD3D10Device->IASetInputLayout(m_pVertexLayout);
+	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	D3DXVECTOR3 cameraPos(0.0f,0.0f,-10.0f);
+	D3DXVECTOR3 cameraLook(0.0f,0.0f,1.0f);
+	D3DXVECTOR3 cameraUp(0.0f,1.0f,0.0f);
+	D3DXMatrixLookAtLH(&m_matView,&cameraPos,&cameraLook,&cameraUp);
+	D3D10_VIEWPORT vp;
+	UINT numViewPorts = 1;
+	m_pD3D10Device->RSGetViewports(&numViewPorts,&vp);
+
+	D3DXMatrixPerspectiveFovLH(&m_matProjection,(float)D3DX_PI * 0.25f,
+		vp.Width /(FLOAT)vp.Height,0.1f,100.0f);
+
+	m_pViewMatrixVariable=
+		m_pEffect->GetVariableByName("matView")->AsMatrix();
+	m_pProjectionMatrixVariable=
+		m_pEffect->GetVariableByName("matProjection")->AsMatrix();
+	m_pProjectionMatrixVariable->SetMatrix((float*)m_matProjection);
+	m_vecPosition=D3DXVECTOR3(1.0f,0.0f,0.0f);
+	m_vecScale = D3DXVECTOR3(1.0f,1.0f,1.0f);
+	m_vecRotation = D3DXVECTOR3(1.0f,1.0f,0.0f);
+	m_pWorldMatrixVariable=
+		m_pEffect->GetVariableByName("matWorld")->AsMatrix();
 	return true;
 }
 
